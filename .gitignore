@@ -1,0 +1,19 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+*.vscode
+*.json
+*.jpg
+*.png
+images/
+*.sqlite3
+media/
+*.log
+*.pot
+*.pyc
+
+local_settings.py
+db.sqlite3
+db.sqlite3-journal
