@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no">
+    <title>HandiNavigate</title>
+    <script type="text/javascript" src="https://openapi.map.naver.com/openapi/v3/maps.js?ncpClientId=m2kuifjxx1"></script>
+    <script src = '../../static/js/jquery-3.6.0.min.js'></script>
+    <script>
+
+    </script>
+
+</head>
+<body>
+    <div id = 'fortest'>
+        <table border = '1'>
+<!--            <div>{{ model_list }}</div>-->
+        {% for i in model_list %}
+            <tr>
+                <td>{{ i.1 }}</td>
+                <br>
+<!--                <td>{{ i.고유번호 }}</td>-->
+<!--                <td>{{ i.시설명 }}</td>-->
+<!--                <td>{{ i.담당구 }}</td>-->
+<!--                <td>{{ i.주소 }}</td>-->
+<!--                <td>{{ i.연락처 }}</td>-->
+<!--                <td>{{ i.홈페이지 }}</td>-->
+<!--                <td>{{ i.추천수 }}</td>-->
+<!--                <td>{{ i.주출입구_접근로_여부 }}</td>-->
+<!--                <td>{{ i.주출입구_높이차이_제거_여부 }}</td>-->
+            </tr>
+        {% endfor %}
+        </table>
+    </div>
+</body>
+</html>

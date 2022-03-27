@@ -1,0 +1,312 @@
+        *{
+            font-family: 'nanum-square';
+            margin : 0;
+            padding : 0;
+        }
+        #logo{
+            position: relative;
+            left:3%;
+            width:163px;
+            height:50px;
+        }
+        #header{
+            
+            height:50px;
+            background-color: white;
+            /* box-shadow: 1px 1px 3px 1px silver ; */
+            /* border-bottom : 1px solid silver; */
+        }
+        #gap{
+            height:3px;
+            background-color: black;
+        }
+        #content{
+
+
+            height:calc(100vh - 106px);
+            z-index: -1;
+        }
+
+        #footer{
+            height:53px;
+            background-color: white;
+            border-top:3px solid black;
+            text-align: right;
+        }
+        #footer img{
+            position: relative;
+            top:9px;
+            right:4px;
+        }
+        #navWrap{
+            position: relative;
+            top :20px;
+            left:20px;
+            float: left;
+            height:370px;
+            width:200px;
+            background-color: white;
+            opacity: 1;
+            box-shadow: 1px 1px 3px 1px silver ;
+            border-radius: 10px;
+        }
+        #map{
+            height: 100%;
+            width: 100%;
+        }
+        ul{
+            background-color: white;
+            width:200px;
+            list-style-type: none;
+            margin:0;
+            padding:0;
+            border-radius: 10px ;
+        }
+        .navList{
+            text-align: center;
+            text-decoration: none;
+            padding-top:15px;
+            padding-bottom:15px;
+            padding-right : 0px;
+            padding-left : 0px;
+            background-color: white;
+            border:1px solid #FFF;
+            border-bottom: 1px solid silver;
+           }
+
+
+
+        .navList a{
+            font-family: 'nanum-square';
+            opacity: 1;
+            color: black;
+            text-decoration: none;
+            font-weight: 400;
+        }
+        #formTable1 > tbody > tr > td:nth-child(2){
+            text-align: left;
+            border-right:2px solid rgba(215,215,215,0.4);
+        }
+
+        #formTable1 > tbody > tr > td:nth-child(4){
+            text-align: left;
+        }
+        #formTable1 > tbody > tr > td:nth-child(6){
+            text-align: left;
+        }
+        #formTable1 > tbody > tr > td:nth-child(8){
+            text-align: left;
+        }
+        #searchBox{
+            position: relative;
+            margin-top: 15px;
+            padding-left: 15px;
+            font-family: 'nanum-squareB';
+            position: relative;
+            height:60px;
+            border-bottom: 1px solid silver;
+
+        }
+        #searchBoxSubmit{
+            position : relative;
+            top : 5px;
+            border:none;
+            background-color: rgb(220,220,220);
+            width: 30px;
+            height : 25px;
+            font-weight:border;
+        }
+        #searchBoxSubmit:hover {
+            background-color : rgb(200, 200, 200);
+        }
+        #searchBoxSubmit:active {
+            background-color : gray;
+        }
+        #searchBoxInput{
+            position: relative;
+            top:10px;
+            left:-5px;
+            background-color: white;
+            border : none;
+            border-bottom: 1px solid gray;
+            font-size:13px;
+            width:150px;
+        }
+        #searchBoxInput:focus{
+            outline:none;
+            border-bottom:1px solid rgb(87,163,210);
+        }
+        #closeMenu{
+            vertical-align: middle;
+            text-align: center;
+            position: relative;
+            height:44px;
+            top: 0px;
+            border-radius:0px 0px 10px 10px;
+        }
+        #closeMenu span{
+            position: relative;
+            top:12px;
+        }
+        #closeMenu:hover{
+            background-color: rgba(215,215,215,0.4);
+            transition:0.5s all;
+            font-weight: 900;
+        }
+        .submenu{
+            position: relative;
+            left:235px;
+            top:5px;
+            height:600px;
+            width:800px;
+            /* background-color: rgba(230,230,230,0.9); */
+            opacity: 1;
+            box-shadow: 1px 1px 3px 1px silver ;
+            border-radius: 10px;
+            display: none;
+        }
+
+        #directory{
+            position: relative;
+            bottom : 18px;
+            font-size : 20px;
+            left : 15px;
+            height:40px;
+            width:800px;
+            display: inline-block;
+            background-color: none;
+        }
+        #directory > b{
+            font-weight: bolder;
+        }
+        #submenu0{
+            background-color: white;
+        }
+
+        #submenu1{
+            background-color: white;
+        }
+        #submenu2{
+            background-color: white;
+        }
+        #submenu3{
+            background-color: white;
+        }
+        #submenu4{
+            background-color: white;
+        }
+        .submenuTable{
+            position: relative;
+            bottom: 370px;
+            text-align: center;
+
+        }
+
+        .submenuTable th{
+            font-size:18px;
+            border-bottom: 1px solid rgba(215,215,215,0.4);
+            background-color:rgba(255,232,171,0.8);
+            box-shadow: 0px 1px 2px 1px silver ;
+        }
+        .submenuTable td:hover{
+            font-weight: 900;
+        }
+        #formTable0 > tbody > tr:nth-child(2) > th:nth-child(2){
+            background-color: rgba(215,215,215,0.4);
+        }
+        #formTable0 > tbody > tr:nth-child(2) > th:nth-child(1){
+            background-color: rgba(215,215,215,0.4);
+        }
+        #formTable1 > tbody > tr:nth-child(2) > th:nth-child(1){
+            background-color: rgba(215,215,215,0.4);
+        }
+        #formTable1 > tbody > tr:nth-child(2) > th:nth-child(2){
+            background-color: rgba(215,215,215,0.4);
+        }
+
+        #selectKind > table > tbody > tr > td:nth-child(2){
+            border-right:2px solid rgba(215,215,215,0.4);
+            text-align: left;
+        }
+
+
+        .chksLabel{
+            display:inline-block;
+            width:15px;
+            height:15px;
+            border:1px solid silver;
+            cursor: pointer;
+        }
+        .convinChks:checked + label{
+            background-color: gray;
+        }
+        .convinChks{
+            display:none;
+        }
+        input[type='radio']{
+            display:none;
+        }
+        input[type='radio']:checked+label{
+            background-color: gray;
+        }
+        #submenu2 td:hover{
+            font-weight:500;
+        }
+        #submenu3 td:hover{
+            font-weight:500;
+        }
+        label:hover{
+            background-color: rgba(215,215,215,0.4);
+        }
+        #formTable0 > tbody > tr:nth-child(12) > td{
+            border-top:2px solid rgba(215,215,215,0.4);
+        }
+        #formSubmit{
+            width:130px;
+            height:40px;
+            background-color: rgba(215,215,215,0.7);
+            border: none;
+            font-size:15px;
+            font-weight:800;
+        }
+        #formSubmit:hover{
+            background-color:rgba(205,205,205,0.8);
+        }
+        #formSubmit1{
+            width:130px;
+            height:40px;
+            background-color: rgba(215,215,215,0.7);
+            border: none;
+            font-size:15px;
+            font-weight:800;
+        }
+        #formSubmit1:hover{
+            background-color:rgba(205,205,205,0.8);
+        }
+        #formTable1 > tbody > tr:nth-child(12) > td{
+                        border-top:2px solid rgba(215,215,215,0.4);
+        }
+        #csrfTokenWrap{
+            display:none;
+        }
+        #formTable0 > tbody > tr > td:nth-child(4){
+            text-align: left;
+        }
+        #formTable0 > tbody > tr > td:nth-child(6){
+            text-align: left;
+        }
+        #formTable0 > tbody > tr > td:nth-child(8){
+            text-align: left;
+        }
+        #forMarking{
+            display:none;
+        }
+        /*font*/
+        @font-face {
+            font-family: 'nanum-square';
+            src: url('/static/font/NanumSquareRoundR.ttf');
+        }
+        @font-face {
+            font-family: 'nanum-squareB';
+            src: url('/static/font/NanumSquareRoundB.ttf');
+        }

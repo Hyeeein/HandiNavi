@@ -1,0 +1,635 @@
+<!--{% load static %}-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no">
+    <title>HandiNavigate</title>
+    <script type="text/javascript" src="https://openapi.map.naver.com/openapi/v3/maps.js?ncpClientId=m2kuifjxx1"></script>
+    <script src = '../../static/js/jquery-3.6.0.min.js'></script>
+    <script>
+        var user_key = 'm2kuifjxx1'
+        var secrete = 'XGncmSKeqYNjbrD3m9kJRWwdoJSKIs2yAp0kvshe'
+        var marker_list_global = []
+        var window_list_global = []
+        var window_list_global2 = []
+        var now_marker = 0
+        var now_window = 0
+        var now_icon = []
+        function map_mover(place, map) {//뷰어 이동(좌표, 지도객체).
+            let place_coordi = new naver.maps.LatLng(place[0], place[1])
+            map.setCenter(place_coordi)
+            map.setZoom(13)
+        }
+        
+        function marker_remove(marker_list, map) {
+            for(var i = 0 ; i < marker_list.length ; i++) { 
+                marker_list[i].setMap(null)
+            }
+        }
+
+        function getClickHandler(seq, map, marker_icons) {
+		
+            return function(e) {  // 마커를 클릭하는 부분
+                var marker = marker_list_global[seq]; // 클릭한 마커의 시퀀스로 찾는다.
+                var infoWindow = window_list_global2[seq]; // 클릭한 마커의 시퀀스로 찾는다
+
+                if (infoWindow.getMap()) {
+                    set_icon_normal(marker,marker_icons)
+                    infoWindow.close();
+                } else {
+                    if(now_marker != 0) {
+                        set_icon_normal(now_marker, marker_icons)
+                    }
+                    now_window = infoWindow
+                    set_icon_click(marker, marker_icons)
+                    now_marker = marker
+                    infoWindow.open(map, marker); // 표출
+                }
+            }
+        }
+
+        function set_icon_normal(marker, icon){
+            marker.setIcon({url: icon[0],
+                size: new naver.maps.Size(20,24),
+                scaledSize: new naver.maps.Size(20, 26),
+                origin: new naver.maps.Point(0,0),
+                anchor: new naver.maps.Point(10,0)
+                })
+            }
+        
+        function set_icon_click(marker, icon){
+            marker.setIcon({url: icon[1],
+                    size: new naver.maps.Size(20,24),
+                    scaledSize: new naver.maps.Size(20, 26),
+                    origin: new naver.maps.Point(0,0),
+                    anchor: new naver.maps.Point(10,0)})
+        }
+
+        function map_marker(url, coordinate, window_data, map) { // 마킹함수(아이콘url, 좌표,지도객체)
+            var marker_list = []
+            if(coordinate[2] == '1') {
+                let position = new naver.maps.LatLng(coordinate[1],coordinate[0])
+                console.log(position)
+                var marker = new naver.maps.Marker({
+                    position: position,
+                    map :map,
+                    icon:{
+                        url: url,
+                        size: new naver.maps.Size(23,26),
+                        scaledSize: new naver.maps.Size(23, 26),
+                        origin: new naver.maps.Point(0,0),
+                        anchor: new naver.maps.Point(10,0) // (왼쪽으로, 위로)
+                    } })
+                    marker_list.push(marker)
+                    marker_list_global.push(marker)
+                    return marker_list
+           } else{
+
+            for(var i = 0 ; i < coordinate.length; i++){
+                let position = new naver.maps.LatLng(coordinate[i][0],coordinate[i][1])
+                // console.log(position)
+                var marker = new naver.maps.Marker({
+                    position: position,
+                    map :map,
+                    title:coordinate[i][2].slice(1),
+                    icon:{
+                        url: url[0],
+                        size: new naver.maps.Size(20,26),
+                        scaledSize: new naver.maps.Size(20, 26),
+                        origin: new naver.maps.Point(0,0),
+                        anchor: new naver.maps.Point(10,0) // (왼쪽으로, 위로)
+                    }
+                })
+                // marker.addListener('mouseover', onMouseOver);
+                // marker.addListener('mouseout', onMouseOut);     
+                var infoWindow = new naver.maps.InfoWindow({
+                    content:window_list_global[i]
+                })
+                window_list_global2.push(infoWindow)
+                marker_list.push(marker)
+                marker_list_global.push(marker)
+            }
+            return marker_list}
+        }
+
+        function onMouseOver(e) {
+            var marker = e.overlay,
+                seq = marker.get('seq');
+
+            marker.setIcon({
+                url: '../../static/img/marker_example.png',
+                size: new naver.maps.Size(20,24),
+                scaledSize: new naver.maps.Size(20, 24),
+                origin: new naver.maps.Point(0,0),
+                anchor: new naver.maps.Point(10,0)
+            });
+        }
+
+        function onMouseOut(e) {
+            var marker = e.overlay,
+                seq = marker.get('seq');
+
+            marker.setIcon({
+                url: '../../static/img/marker_sample.png',
+                size: new naver.maps.Size(20,24),
+                scaledSize: new naver.maps.Size(20, 24),
+                origin: new naver.maps.Point(0,0),
+                anchor: new naver.maps.Point(10,0)
+            });
+        }
+
+        function close_window_marker(){
+            now_window.close()
+            set_icon_normal(now_marker, now_icon)
+        }
+
+        function make_window(dbnum, data) {
+            let return_list = []
+            if(dbnum == '1') {
+                for(var i = 0 ; i < data.length ; i++) {
+                    let temp_list = [data[i][2].slice(2), data[i][4].slice(2,-1), data[i][5].slice(2,-1), data[i][6].slice(2,-1), data[i][20].slice(2,-1)]
+                    // console.log(data)
+                    let window = '<div style = "width:340px; padding:10px; height:230px; font-size:12px;" onclick = close_window_marker()><table style="width:340px; height:230px;"><col width = "100px"><col width = "240px"><tr><th style = "background-color : rgb(220,220,220);">시설명</th><td style = "padding-left:3px;">'+temp_list[0].slice(0,-1)+'</td></tr><tr><th style = "background-color : rgb(220,220,220);">주소</th><td style = "padding-left:3px;">'+temp_list[1]+'</td></tr><tr><th style = "background-color : rgb(220,220,220);">전화번호</th><td style = "padding-left:3px;">'+temp_list[2]+'</td></tr><tr><th style = "background-color : rgb(220,220,220);">홈페이지</th><td style = "padding-left:3px;">'+temp_list[3]+'</td></tr><tr><th style = "background-color : rgb(220,220,220);">시설종류</th><td style = "padding-left:3px;">'+temp_list[4]+'</td></tr></table></div>'
+                    return_list.push(window)
+                    window_list_global.push(window)
+                }
+            }
+            if(dbnum =='2') {
+                for(var i = 0 ; i < data.length ; i++) {
+                    let temp_list = [data[i][1].slice(2), data[i][4].slice(2,-1), data[i][5].slice(2,-1), data[i][6].slice(2,-1), data[i][8].slice(2,-1)]
+                    let window = '<div style = "width:340px; padding:10px; height:230px; font-size:12px;" onclick = close_window_marker()><table style="width:340px; height:230px;"><col width = "100px"><colwidth = "240px"><tr><th style = "background-color : rgb(220,220,220);">도서관명</th><td style = "padding-left:3px;">'+temp_list[0].slice(0,-1)+'</td></tr><tr><th style = "background-color : rgb(220,220,220);">주소</th><td style = "padding-left:3px;">'+temp_list[1]+'</td></tr><tr><th style = "background-color : rgb(220,220,220);">전화번호</th><td style = "padding-left:3px;">'+temp_list[2]+'</td></tr><tr><th style = "background-color : rgb(220,220,220);">홈페이지</th><td style = "padding-left:3px;">'+temp_list[3]+'</td></tr><tr><th style = "background-color : rgb(220,220,220);">정기휴관일</th><td style = "padding-left:3px;">'+temp_list[4]+'</td></tr></table></div>'
+                    return_list.push(window)
+                    window_list_global.push(window)
+                }
+            }
+            if(dbnum =='3') {
+                for(var i = 0 ; i < data.length ; i++) {
+                    let temp_list = [data[i][0].slice(1), data[i][2], data[i][4].slice(2,-1), data[i][8].slice(2,-1), data[i][9].slice(2,-1)]
+                    let window = '<div style = "width:300px; padding:10px; height:230px; font-size:12px;" onclick = close_window_marker()><table style="width:300px; height:230px;"><col width = "100px"><colwidth = "240px"><tr><th style = "background-color : rgb(220,220,220);">주차장명</th><td style = "padding-left:3px;">'+temp_list[0].slice(0,-1)+'</td></tr><tr><th style = "background-color : rgb(220,220,220);">주소</th><td style = "padding-left:3px;">'+temp_list[2]+'</td></tr><tr><th style = "background-color : rgb(220,220,220);">주차가능면</th><td style = "padding-left:3px;">'+temp_list[1]+'</td></tr><tr><th style = "background-color : rgb(220,220,220);">세부분류</th><td style = "padding-left:3px;">'+temp_list[3]+'</td></tr><tr><th style = "background-color : rgb(220,220,220);">장애인 주차칸 유무</th><td style = "padding-left:3px;">'+temp_list[4]+'</td></tr></table></div>'
+                    return_list.push(window)
+                    window_list_global.push(window)
+                }
+            }
+            if(dbnum == '4') {
+                for(var i = 0; i < data.length ; i++) {
+                    let temp_list = [data[i][1].slice(2), data[i][2], data[i][3], data[i][4], data[i][5]]
+                    let window = '<div style = "width:250px; padding:10px; height:230px; font-size:12px;" onclick = close_window_marker()><table style="width:250px; height:230px; text-align:center;"><col width = "120px"><col width = "120px"><tr><th style = "background-color : rgb(220,220,220);">역명</th><td style = "padding-left:3px;">'+temp_list[0].slice(0,-1)+'</td></tr><tr><th style = "background-color : rgb(220,220,220);">승강기</th><td style = "padding-left:3px;">'+temp_list[1]+'대</td></tr><tr><th style = "background-color : rgb(220,220,220);">에스컬레이터</th><td style = "padding-left:3px;">'+temp_list[2]+'대</td></tr><tr><th style = "background-color : rgb(220,220,220);">휠체어 리프트</th><td style = "padding-left:3px;">'+temp_list[3]+'대</td></tr><tr><th style = "background-color : rgb(220,220,220);">휠체어 급속충전기</th><td style = "padding-left:3px;">'+temp_list[4]+'대</td></tr></table></div>'
+                    return_list.push(window)
+                    window_list_global.push(window)
+                }
+            }
+            if(dbnum == '5') {
+                for(var i = 0; i< data.length ; i++) {
+                    let temp_list = [data[i][0].slice(1,-1), data[i][4].slice(2,-1), data[i][8].slice(2,-1), data[i][15], data[i][18].slice(2,-1), data[i][19].slice(2,-1)]
+                    let window = '<div style = "width:350px; padding:10px; height:330px; font-size:12px;" onclick = close_window_marker()><table style="width:350px; height:330px;"><col width = "120px"><col width = "120px"><tr><th style = "background-color : rgb(220,220,220);">시설명</th><td style = "padding-left:3px;">'+temp_list[0]+'</td></tr><tr><th style = "background-color : rgb(220,220,220);">주소</th><td style = "padding-left:3px;">'+temp_list[2]+'</td></tr><tr><th style = "background-color : rgb(220,220,220);">설치장소</th><td style = "padding-left:3px;">'+temp_list[2]+'</td></tr><tr><th style = "background-color : rgb(220,220,220);">동시사용가능대수</th><td style = "padding-left:3px;">'+temp_list[3]+'대</td></tr><tr><th style = "background-color : rgb(220,220,220);">관리기관</th><td style = "padding-left:3px;">'+temp_list[4]+'</td></tr><tr><th style = "background-color : rgb(220,220,220);">연락처</th><td style = "padding-left:3px;">'+temp_list[5]+'</td></tr></table></div>'
+                    return_list.push(window)
+                    window_list_global.push(window)
+                }
+            }
+            return return_list
+        }
+
+        function return_marker(dbnum) {
+            return_list = []
+            if(dbnum == '1') {
+                return_list.push('../../static/img/facilities_marker_normal.png')
+                return_list.push('../../static/img/facilities_marker_clicked.png')
+            }
+            if(dbnum == '2') {
+                return_list.push('../../static/img/library_marker_normal.png')
+                return_list.push('../../static/img/library_marker_clicked.png')
+            }
+            if(dbnum == '3') {
+                return_list.push('../../static/img/parking_marker_normal.png')
+                return_list.push('../../static/img/parking_marker_clicked.png')
+            }
+            if(dbnum == '4') {
+                return_list.push('../../static/img/train_marker_normal.png')
+                return_list.push('../../static/img/train_marker_clicked.png')
+            }
+            if(dbnum == '5') {
+                return_list.push('../../static/img/charger_icon_normal.png')
+                return_list.push('../../static/img/charger_icon_clicked.png')
+            }
+            return return_list
+        }
+
+        function sleep(ms) { //delay 함수
+            const wakeUpTime = Date.now() + ms;
+            while (Date.now() < wakeUpTime) {}
+            }
+
+        function isNull(v) {
+            return (v === undefined || v === null) ? true : false;
+        }
+
+        function customControllerSet() { //navBar 생성함수
+            map = new naver.maps.Map('map');
+            map.setMapTypeId(naver.maps.MapTypeId.NORMAL);
+            var navWrap = '<div id = "allContent"><div id = "navWrap"><div id = "searchBox">주소 검색<input type = "text", id = "searchBoxInput", placeholder="주소를 입력해주세요" ><input type = "button", id = "searchBoxSubmit", value = "찾기"></div><ul><li class = "navList"><a href="#">서울시공영주차장</a></li><li class = "navList"><a href="#">전동휠체어급속충전기</a></li><li class = "navList"><a href="#">관광편의시설</a></li><li class = "navList"><a href="#">지하철내 승강편의시설</a></li><li class = "navList"><a href="#">도서관</a></li></ul><div id = "closeMenu"><span>메뉴 닫기<span></div></div><div id = "submenuWrap"><div id = "submenu0", class = "submenu"><table class = "submenuTable", height = "600", width = "800"><tr><th colspan="3">서울시 공영주차장</th></tr><tr><td>강남구</td><td>강동구</td><td>강북구</td></tr><tr><td>강서구</td><td>관악구</td><td>광진구</td></tr><tr><td>구로구</td><td>금천구</td><td>노원구</td></tr><tr><td>도봉구</td><td>동대문구</td><td>동작구</td></tr><tr><td>마포구</td><td>서대문구</td><td>서초구</td></tr><tr><td>성동구</td><td>성북구</td><td>송파구</td></tr><tr><td>양천구</td><td>영등포구</td><td>용산구</td></tr><tr><td>은평구</td><td>종로구</td><td>중구</td></tr><tr><td colspan="3">중랑구</td></tr></table></div><div id ="submenu1", class = "submenu"><table class = "submenuTable", height = "600", width = "800"><tr><th colspan="3">전동휠체어 급속충전기</th></tr><tr><td>강남구</td><td>강동구</td><td>강북구</td></tr><tr><td>강서구</td><td>관악구</td><td>광진구</td></tr><tr><td>구로구</td><td>금천구</td><td>노원구</td></tr><tr><td>도봉구</td><td>동대문구</td><td>동작구</td></tr><tr><td>마포구</td><td>서대문구</td><td>서초구</td></tr><tr><td>성동구</td><td>성북구</td><td>송파구</td></tr><tr><td>양천구</td><td>영등포구</td><td>용산구</td></tr><tr><td>은평구</td><td>종로구</td><td>중구</td></tr><tr><td colspan="3">중랑구</td></tr></table></div><div id = "submenu2", class = "submenu"><form id = "selectKind", action="", method="post"><div class = "csrfTokenWrap">{% csrf_token %}</div><table id="formTable0", class = "submenuTable", height = "600", width = "800"><col width = "213"><col width = "50"><col width = "110"><col width = "69"><col width = "110"><col width = "69"><col width = "110"><col width = "69"><tr><th height="60", colspan = "9">관광 편의시설</th></tr><tr><th colspan = "2">편의시설 종류</th><th colspan = "6">지역</th></tr><tr><td>공공기관</td><td><input type = "checkbox", id = "pabulicFac", value="pabulicFac", class="convinChks"><label for="pabulicFac", class="chksLabel"></label></td><td>강남구</td><td><input type ="radio", name="place", value = "GangNam", id="GangNam"><label for="GangNam", class="chksLabel"></label></td><td>강동구</td><td><input type ="radio", name="place", value = "GangDong", id="GangDong"><label for="GangDong", class="chksLabel"></label></td><td>강북구</td><td><input type ="radio", name="place", value = "GangBuk", id="GangBuk"><label for="GangBuk", class="chksLabel"></label></td></tr><tr><td>화장실</td><td><input type = "checkbox", id = "toilet", value="toilet", class="convinChks"><label for="toilet", class="chksLabel"></label></td><td>강서구</td><td><input type ="radio", name="place", value = "GangSeo", id="GangSeo"><label for="GangSeo", class="chksLabel"></label></td><td>관악구</td><td><input type ="radio", name="place", value = "GwanAk", id="GwanAk"><label for="GwanAk", class="chksLabel"></label></td><td>광진구</td><td><input type ="radio", name="place", value = "GwangJin", id="GwangJin"><label for="GwangJin", class="chksLabel"></label></td></tr><tr><td>교육기관</td><td><input type = "checkbox", id = "eduFac", value="eduFac", class="convinChks"><label for="eduFac", class="chksLabel"></label></td><td>구로구</td><td><input type ="radio", name="place", value = "GuRo", id="GuRo"><label for="GuRo", class="chksLabel"></label></td><td>금천구</td><td><input type ="radio", name="place", value = "GeumCheon", id="GeumCheon"><label for="GeumCheon", class="chksLabel"></label></td><td>노원구</td><td><input type ="radio", name="place", value = "NoOne", id="NoOne"><label for="NoOne", class="chksLabel"></label></td></tr><tr><td>종교시설</td><td><input type = "checkbox", id = "reliFac", value="reliFac", class="convinChks"><label for="reliFac", class="chksLabel"></label></td><td>도봉구</td><td><input type ="radio", name="place", value = "DoBong", id="DoBong"><label for="DoBong", class="chksLabel"></label></td><td>동대문구</td><td><input type ="radio", name="place", value = "DongDaeMoon", id="DongDaeMoon"><label for="DongDaeMoon", class="chksLabel"></label></td><td>동작구</td><td><input type ="radio", name="place", value = "DongJak", id="DongJak"><label for="DongJak", class="chksLabel"></label></td></tr><tr><td>의료시설</td><td><input type = "checkbox", id = "mediFac", value="mediFac", class="convinChks"><label for="mediFac", class="chksLabel"></label></td><td>마포구</td><td><input type ="radio", name="place", value = "MaPo", id="MaPo"><label for="MaPo", class="chksLabel"></label></td><td>서대문구</td><td><input type ="radio", name="place", value = "SeoDaeMoon", id="SeoDaeMoon"><label for="SeoDaeMoon", class="chksLabel"></label></td><td>서초구</td><td><input type ="radio", name="place", value = "SeoCho", id="SeoCho"><label for="SeoCho", class="chksLabel"></label></td></tr><tr><td>영화관</td><td><input type = "checkbox", id = "theater", value="theater", class="convinChks"><label for="theater", class="chksLabel"></label></td><td>성동구</td><td><input type ="radio", name="place", value = "SeongDong", id="SeongDong"><label for="SeongDong", class="chksLabel"></label></td><td>성북구</td><td><input type ="radio", name="place", value = "SeongBook", id="SeongBook"><label for="SeongBook", class="chksLabel"></label></td><td>송파구</td><td><input type ="radio", name="place", value = "SongPa", id="SongPa"><label for="SongPa", class="chksLabel"></label></td></tr><tr><td>마트</td><td><input type = "checkbox", id = "mart", value="mart", class="convinChks"><label for="mart", class="chksLabel"></label></td><td>양천구</td><td><input type ="radio", name="place", value = "YangCheon", id="YangCheon"><label for="YangCheon", class="chksLabel"></label></td><td>영등포구</td><td><input type ="radio", name="place", value = "YoungDeungPo", id="YoungDeungPo"><label for="YoungDeungPo", class="chksLabel"></label></td><td>용산구</td><td><input type ="radio", name="place", value = "YongSan", id="YongSan"><label for="YongSan", class="chksLabel"></label></td></tr><tr><td>은행</td><td><input type = "checkbox", id = "bank", value="bank", class="convinChks"><label for="bank", class="chksLabel"></label></td><td>은평구</td><td><input type ="radio", name="place", value = "EunPyeng", id="EunPyeng"><label for="EunPyeng", class="chksLabel"></label></td><td>종로구</td><td><input type ="radio", name="place", value = "JongRo", id="JongRo"><label for="JongRo", class="chksLabel"></label></td><td>중구</td><td><input type ="radio", name="place", value = "JoongGu", id="JoongGu"><label for="JoongGu", class="chksLabel"></label></td></tr><tr height="54"><td>기타</td><td><input type = "checkbox", id = "etcFac", value="etcFac", class="convinChks"><label for="etcFac", class="chksLabel"></label></td><td>중랑구</td><td><input type ="radio", name="place", value = "JoongRang", id="JoongRang"><label for="JoongRang", class="chksLabel"></label></td><td></td><td></td><td colspan = "2"></td></tr><tr><td colspan="8"><input type = "button", value = "조회", id="formSubmit"></td></tr></table></form></div><div id = "submenu3", class = "submenu"><form id = "selectKind1", action="", method="post"><div class = "csrfTokenWrap">{% csrf_token %}</div><table id="formTable1", class = "submenuTable", height = "600", width = "800"><col width = "213"><col width = "50"><col width = "110"><col width = "69"><col width = "110"><col width = "69"><col width = "110"><col width = "69"><tr><th height="60", colspan = "9">지하철내 승강편의시설</th></tr><tr><th colspan = "2">편의시설 종류</th><th colspan = "6">지역</th></tr><tr><td>엘리베이터</td><td><input type = "checkbox", id = "elevator", value="elevator", class="convinChks"><label for="elevator", class="chksLabel"></label></td><td>강남구</td><td><input type ="radio", name="place", value = "GangNam", id="GangNam2"><label for="GangNam2", class="chksLabel"></label></td><td>강동구</td><td><input type ="radio", name="place", value = "GangDong", id="GangDong2"><label for="GangDong2", class="chksLabel"></label></td><td>강북구</td><td><input type ="radio", name="place", value = "GangBuk", id="GangBuk2"><label for="GangBuk2", class="chksLabel"></label></td></tr><tr><td>에스컬레이터</td><td><input type = "checkbox", id = "escalate", value="escalate", class="convinChks"><label for="escalate", class="chksLabel"></label></td><td>강서구</td><td><input type ="radio", name="place", value = "GangSeo", id="GangSeo2"><label for="GangSeo2", class="chksLabel"></label></td><td>관악구</td><td><input type ="radio", name="place", value = "GwanAk", id="GwanAk2"><label for="GwanAk2", class="chksLabel"></label></td><td>광진구</td><td><input type ="radio", name="place", value = "GwangJin", id="GwangJin2"><label for="GwangJin2", class="chksLabel"></label></td></tr><tr><td>휠체어리프트</td><td><input type = "checkbox", id = "wheelLift", value="wheelLift", class="convinChks"><label for="wheelLift", class="chksLabel"></label></td><td>구로구</td><td><input type ="radio", name="place", value = "GuRo", id="GuRo2"><label for="GuRo2", class="chksLabel"></label></td><td>금천구</td><td><input type ="radio", name="place", value = "GeumCheon", id="GeumCheon2"><label for="GeumCheon2", class="chksLabel"></label></td><td>노원구</td><td><input type ="radio", name="place", value = "NoOne", id="NoOne2"><label for="NoOne2", class="chksLabel"></label></td></tr><tr><td></td><td></td><td>도봉구</td><td><input type ="radio", name="place", value = "DoBong", id="DoBong2"><label for="DoBong2", class="chksLabel"></label></td><td>동대문구</td><td><input type ="radio", name="place", value = "DongDaeMoon", id="DongDaeMoon2"><label for="DongDaeMoon2", class="chksLabel"></label></td><td>동작구</td><td><input type ="radio", name="place", value = "DongJak", id="DongJak2"><label for="DongJak2", class="chksLabel"></label></td></tr><tr><td></td><td></td><td>마포구</td><td><input type ="radio", name="place", value = "MaPo", id="MaPo2"><label for="MaPo2", class="chksLabel"></label></td><td>서대문구</td><td><input type ="radio", name="place", value = "SeoDaeMoon", id="SeoDaeMoon2"><label for="SeoDaeMoon2", class="chksLabel"></label></td><td>서초구</td><td><input type ="radio", name="place", value = "SeoCho", id="SeoCho2"><label for="SeoCho2", class="chksLabel"></label></td></tr><tr><td></td><td></td><td>성동구</td><td><input type ="radio", name="place", value = "SeongDong", id="SeongDong2"><label for="SeongDong2", class="chksLabel"></label></td><td>성북구</td><td><input type ="radio", name="place", value = "SeongBook", id="SeongBook2"><label for="SeongBook2", class="chksLabel"></label></td><td>송파구</td><td><input type ="radio", name="place", value = "SongPa", id="SongPa2"><label for="SongPa2", class="chksLabel"></label></td></tr><tr><td></td><td></td><td>양천구</td><td><input type ="radio", name="place", value = "YangCheon", id="YangCheon2"><label for="YangCheon2", class="chksLabel"></label></td><td>영등포구</td><td><input type ="radio", name="place", value = "YoungDeungPo", id="YoungDeungPo2"><label for="YoungDeungPo2", class="chksLabel"></label></td><td>용산구</td><td><input type ="radio", name="place", value = "YongSan", id="YongSan2"><label for="YongSan2", class="chksLabel"></label></td></tr><tr><td></td><td></td><td>은평구</td><td><input type ="radio", name="place", value = "EunPyeng", id="EunPyeng2"><label for="EunPyeng2", class="chksLabel"></label></td><td>종로구</td><td><input type ="radio", name="place", value = "JongRo", id="JongRo2"><label for="JongRo2", class="chksLabel"></label></td><td>중구</td><td><input type ="radio", name="place", value = "JoongGu", id="JoongGu2"><label for="JoongGu2", class="chksLabel"></label></td></tr><tr height="54"><td></td><td></td><td>중랑구</td><td><input type ="radio", name="place", value = "JoongRang", id="JoongRang2"><label for="JoongRang2", class="chksLabel"></label></td><td></td><td></td><td colspan = "2"></td></tr><tr><td colspan = "8"><input type = "submit", value = "조회", id="formSubmit1"></td></tr></table></form></div><div id = "submenu4", class = "submenu"><table class = "submenuTable", height = "600", width = "800"><tr><th colspan="3">도서관</th></tr><tr><td>강남구</td><td>강동구</td><td>강북구</td></tr><tr><td>강서구</td><td>관악구</td><td>광진구</td></tr><tr><td>구로구</td><td>금천구</td><td>노원구</td></tr><tr><td>도봉구</td><td>동대문구</td><td>동작구</td></tr><tr><td>마포구</td><td>서대문구</td><td>서초구</td></tr><tr><td>성동구</td><td>성북구</td><td>송파구</td></tr><tr><td>양천구</td><td>영등포구</td><td>용산구</td></tr><tr><td>은평구</td><td>종로구</td><td>중구</td></tr><tr><td colspan="3">중랑구</td></tr></table></div></div></div>';
+            naver.maps.Event.once(map, 'init', function(){
+                var customControl = new naver.maps.CustomControl(navWrap, {
+                    position:naver.maps.Position.TOP_LEFT
+                })
+            customControl.setMap(map)
+            })
+            return map
+        }
+
+        function extract_coordinate(DBnum, datalist) {
+            let return_list = []
+            let temp_list = []
+            if(DBnum=='1') {
+                for(var i = 0 ; i < datalist.length ; i++) {
+                    return_list.push([datalist[i][18].slice(1,-1), datalist[i][19].slice(1,-1), datalist[i][2].slice(1,-1)])
+                }
+            }
+            if(DBnum=='2') {
+                for(var i = 0 ; i < datalist.length ; i++) {
+                    return_list.push([datalist[i][10].slice(1,-1), datalist[i][11].slice(1,-1), datalist[i][1].slice(1,-1)])
+                }
+            }
+            if(DBnum=='3') {
+                for(var i = 0 ; i < datalist.length ; i++) {
+                    return_list.push([datalist[i][5].slice(1,-1), datalist[i][6].slice(1,-1), datalist[i][0].slice(1,-1)])
+                }
+            }
+            if(DBnum=='4') {
+                for(var i = 0 ; i < datalist.length ; i++) {
+                    return_list.push([datalist[i][7].slice(1,-1), datalist[i][6].slice(1,-1), datalist[i][1].slice(1,-1)])
+                }
+            }
+            if(DBnum=='5') {
+                for(var i = 0 ; i < datalist.length ; i++) {
+                    return_list.push([datalist[i][6].slice(1,-1), datalist[i][7].slice(1,-1), datalist[i][0].slice(1,-1)])
+                }
+            }
+            return return_list
+        }
+
+        function navSettings(map) { //navBar 속성부여함수
+            $('.navList').each(function(i) {
+                $(this).click(function() {
+                    
+                    $(this).siblings().css('background-color','white')
+                    $(this).siblings().children('a').css('font-weight','400')
+                    // $(this).css('background-color','rgb(255,232,171)')
+                    $(this).css({'transition':'0.5s all','background-color':'rgb(255,232,171)' })
+                    $(this).children('a').css('font-weight','900')
+                    if($('.submenu').eq(i).is(":visible")) {
+                        $('.submenu').eq(i).fadeOut("fast")
+                        $('.navList').eq(i).css('background-color','white')
+                        $('.navList').eq(i).children('a').css('font-weight','400')
+                    }else{
+                        for(var j = 0; j < 5 ; j++) {
+                            if($('.submenu').eq(j).is(":visible")) {
+                                $('.submenu').eq(j).fadeOut("fast")
+                                sleep(130)
+                                break
+                            }
+                        }
+                            $('.submenu').eq(i).fadeIn("fast")}
+                            sleep(100)
+                    return false;
+                    })
+                })
+                $('#closeMenu').click(function() {
+                    for(var j = 0; j<5 ; j++){
+                        $('.submenu').eq(j).fadeOut('fast')
+                        $('.navList').css('background-color','white')
+                        $('.navList').eq(j).children('a').css('font-weight','400')
+                        $('.navList').css('transition','0.5s all')
+                    }
+                })
+                
+                $('#submenu0 > table > tbody > tr > td').each(function() {
+                    $(this).click(function(i) {
+                        let gu = $(this).text()
+                        let string = '서울시 공영 주차장 > ' + gu
+                        let k = ['123', '123']
+                        parameter = ajax_DB_param('3', $(this).text(), k)
+                        DB_return(parameter, map)
+                        $('#submenu0').fadeOut('fast')
+                        $('.navList').eq(0).css('background-color','white')
+                        $('.navList').eq(0).children('a').css('font-weight','400')
+                        if(now_window != 0) {
+                            now_window.close()
+                        }
+                        
+                        $('#directory > b').text(string)
+                    return false;
+                })
+                })
+                $('#submenu1 > table > tbody > tr > td').each(function() {
+                    $(this).click(function(i) {
+                        
+                        let k = ['123', '123']
+                        let string = '전동휠체어 급속충전기 > ' + $(this).text()
+                        parameter = ajax_DB_param('5', $(this).text(), k)
+                        DB_return(parameter, map)
+                        $('#submenu1').fadeOut('fast')
+                        $('.navList').eq(1).css('background-color','white')
+                        $('.navList').eq(1).children('a').css('font-weight','400')
+                        if(now_window != 0) {
+                            now_window.close()
+                        }
+                        $('#directory > b').text(string)
+                    return false;
+                })
+                })
+                $('#submenu4 > table > tbody > tr > td').each(function() {
+                    $(this).click(function(i) {
+                        
+                        let k = ['123', '123']
+                        parameter = ajax_DB_param('2', $(this).text(), k)
+                        DB_return(parameter, map)
+                        $('#submenu4').fadeOut('fast')
+                        $('.navList').eq(4).css('background-color','white')
+                        $('.navList').eq(4).children('a').css('font-weight','400')
+                        if(now_window != 0) {
+                            now_window.close()
+                        }
+                        let string = '도서관 > ' + $(this).text()
+                        $('#directory > b').text(string)
+                    return false;
+                })
+                })
+                
+                $('#formSubmit').click(function() {
+                    
+                    if(now_window != 0) {
+                        now_window.close()
+                    }
+                    
+                    let checked_list = []
+                    if (isNull($('#submenu2 input[name="place"]:checked'))) {
+                        alert('구를 설정해 주세요')
+                        return false;
+                    }
+                    let gu = $('#submenu2 input[name="place"]:checked').parent().prev().text()
+
+                    $('#submenu2 input[name="place"]:checked').prop('checked',false)
+                    $('#submenu2 input[class="convinChks"]:checked').each(function() {
+                        checked_list.push($(this).parent().prev().text())
+                        $(this).prop('checked', false)
+                    })
+                    $('#submenu2').fadeOut('fast')
+                    parameter = ajax_DB_param('1',gu,checked_list)
+                    DB_return(parameter, map)
+                    $('.navList').eq(2).css('background-color','white')
+                    $('.navList').eq(2).children('a').css('font-weight','400')
+                    let string = '관광 편의시설 > ' + gu
+                    let parameter_string = ''
+                    for(var i = 0 ; i < Object.keys(parameter).length-2 ; i++) {
+                        parameter_string += ' ' + parameter['param'+i]
+                    }
+                    string += ' > ' + parameter_string
+                    $('#directory > b').text(string)
+                    return false;
+                })
+                $('#formSubmit1').click(function() {
+                    
+                    if(now_window != 0) {
+                        now_window.close()
+                    }
+                    let checked_list=[]
+
+                    let gu = $('#submenu3 input[name="place"]:checked').parent().prev().text()
+                    $('#submenu3 input[name="place"]:checked').prop('checked',false)
+                    $('#submenu3 input[class="convinChks"]:checked').each(function() {
+                        checked_list.push($(this).parent().prev().text())
+                        $(this).prop('checked', false)
+                    })
+                    $('#submenu3').fadeOut('fast')
+                    // console.log(gu, checked_list)
+                    parameter = ajax_DB_param('4',gu,checked_list)
+                    DB_return(parameter, map)
+                    $('.navList').eq(3).css('background-color','white')
+                    $('.navList').eq(3).children('a').css('font-weight','400')
+                    let string = '지하철내 승강편의시설 > ' + gu
+                    let parameter_string = ''
+                    for(var i = 0 ; i < Object.keys(parameter).length-2 ; i++) {
+                        parameter_string += ' ' + parameter['param'+i]
+                    }
+                    string += ' > ' + parameter_string
+                    $('#directory > b').text(string)
+                    return false;
+                })
+                $('#searchBoxSubmit').click(function() {
+                    let text_value = $(this).prev().val()
+                    $('#directory > b').text(text_value)
+                    $(this).prev().val('')
+                    find_marking('../../static/img/marker_sample.png', text_value, map)
+                    console.log(text_value)
+                })
+
+
+                
+        }
+
+        function query(param) { //query parameter용 ajax userkey, secretekey(query : param)
+            let key = {'X-NCP-APIGW-API-KEY-ID': user_key, 'X-NCP-APIGW-API-KEY': secrete}
+            key['query'] = param
+            return key
+        }
+
+        function find_add(address, map) {//addressFinder, promise객체 생성 ajax 시행
+            return new Promise((resolve, reject) => {
+                setTimeout(() => {
+                    $.ajax({
+                    url:'https://naveropenapi.apigw.ntruss.com/map-geocode/v2/geocode',     // 통신할 경로(주소)
+                    dataType:'json',        // 전송받을 데이터의 타입 (xml, json, html, script, ...)
+                    data:query(address),  // 전송할 데이터
+                    success:function(data){// 성공 했을 때,
+                        resolve(data)
+                    },
+                    error:function(request, error){ // 실패 했을 때
+                        reject(error)
+                    }
+                    })
+                },0)
+            })
+        }
+        
+        function find_marking(url, address, map) { //find_add then,catch시행
+            find_add(address, map).then((data) => {
+                let addresses = data["addresses"][0]
+                console.log(addresses['x'], addresses['y'])
+                map_marker(url,[addresses['x'],addresses['y'],'1'],[], map)
+                map_mover([[addresses['x'],addresses['y']]], map)
+            }).catch((error) => {
+                alert(error)
+            })
+        }
+
+        function ajax_DB_param(dbnum, gu, param_list) {
+            let dbDict = {'dbnum' : dbnum, 'gu': gu}
+            for(var i = 0; i < param_list.length ; i++) {
+                dbDict['param'+i] = param_list[i]
+            }
+            return dbDict
+        }
+
+        function ajax_DB(DBname){ // DB ajax 통신
+            return new Promise((resolve, reject) => {
+                setTimeout(() => {
+                    $.ajax({
+                        url:'findData/',
+                        type:"POST",
+                        dataType:'text',
+                        data:DBname,
+                        headers:{"X-CSRFToken":"{{ csrf_token }}"},
+                        success:function(data) {
+                            resolve(data)
+                        },
+                        error:function(data,error) {
+                            reject(data, error)
+                        }
+                    })
+                }, 0)
+            })
+        }
+
+        function DB_return(DBname, map) {
+            ajax_DB(DBname).then((data) => {
+                marker_remove(marker_list_global, map)
+                let dbnum = DBname['dbnum']
+                window_list_global = []
+                window_list_global2 = []
+                marker_list_global = []
+                let temp = parse_Data(dbnum, data)
+                let coordi_list = extract_coordinate(dbnum, temp)
+                let window_list = make_window(dbnum, temp)
+                now_icon = return_marker(dbnum)
+                a = map_marker(now_icon, coordi_list, window_list, map)
+                map_mover(coordi_list[0], map)
+                for (var i=0, ii=marker_list_global.length; i<ii; i++) {
+                    // console.log(marker_list_global[i] , getClickHandler(i));
+                    naver.maps.Event.addListener(marker_list_global[i], 'click', getClickHandler(i, map, now_icon)); // 클릭한 마커 핸들러
+                }
+                
+                
+            }).catch((data, error) => {
+                
+            })
+        }
+
+        function parse_Data(DBnum, data){
+            let num = DBnum
+            let rawData = data
+            let returnList = []
+            let tempList = []
+            let replaced = data.replace(/\)\(/g, ",").slice(1,-1).split(",")
+            if(num == '1') {
+                for(var i = 0 ; i < replaced.length ; i++) {
+                    if((i%21 == 0) | (i == replaced.length-1)) {
+                        if(i == replaced.length-1) {
+                            tempList.push(replaced[i])
+                        }
+                        if(i/21 > 0) {
+                            returnList.push(tempList)
+                        }
+                        tempList = []
+                    }
+                    tempList.push(replaced[i])
+                }
+            }else if(num == '2') {
+                for(var i = 0 ; i < replaced.length ; i++) {
+                    if((i%12 == 0) | (i == replaced.length-1)) {
+                        if(i == replaced.length-1) {
+                            tempList.push(replaced[i])
+                        }
+                        if(i/12 > 0) {
+                            returnList.push(tempList)
+                        }
+                        tempList = []
+                    }
+                    tempList.push(replaced[i])
+                }
+            }else if(num == '3') {
+                for(var i = 0 ; i < replaced.length ; i++) {
+                    if((i%10 == 0) | (i == replaced.length-1)) {
+                        if(i == replaced.length-1) {
+                            tempList.push(replaced[i])
+                        }
+                        if(i/10 > 0) {
+                            returnList.push(tempList)
+                        }
+                        tempList = []
+                    }
+                    tempList.push(replaced[i])
+                }
+            }else if(num == '4') {
+                for(var i = 0 ; i < replaced.length ; i++) {
+                    if((i%8 == 0) | (i == replaced.length-1)) {
+                        if(i == replaced.length-1) {
+                            tempList.push(replaced[i])
+                        }
+                        if(i/8 > 0) {
+                            returnList.push(tempList)
+                        }
+                        tempList = []
+                    }
+                    tempList.push(replaced[i])
+                }
+            }else {
+                for(var i = 0 ; i < replaced.length ; i++) {
+                    if((i%23 == 0) | (i == replaced.length-1)) {
+                        if(i == replaced.length-1) {
+                            tempList.push(replaced[i])
+                        }
+                        if(i/23 > 0) {
+                            returnList.push(tempList)
+                        }
+                        tempList = []
+                    }
+                    tempList.push(replaced[i])
+                }
+            }
+            return returnList
+        }
+
+        $(function() { // 메인
+            var map = customControllerSet()
+            let icon = '../../static/img/symbol.png'
+            var position = new naver.maps.LatLng(37.3595704, 127.105399);
+            var juso = '서울시 노원구 동일로 196길 31-3'
+            setTimeout(function() {
+                navSettings(map)
+                }, 50);
+            let db_list = ['교육기관', '기타']
+            // ajax_DB(db_list)
+            // a = ajax_DB_param('5', '동작구', db_list)
+            
+            // DB_return(a, map)
+            // parse_Data('1', return_data)
+
+            })
+            
+
+    </script>
+    <link rel = "stylesheet" type = "text/css" href="{% static '/font.css' %}">
+</head>
+<body>
+
+    <div>
+        <div id = 'header'><div id = 'directory'><b></b></div><img id = 'logo', src="/static/img/핸디나비_한글.png" alt=""></div>
+        <div id = 'gap'></div>
+        <div id = 'content'>
+            <div id = 'map'></div>
+
+        </div>
+        <div id = 'footer'>
+            <img src="/static/img/copyright_eng.png" alt="">
+            <div id = "forMarking"></div>
+        </div>
+    </div>
+</body>
+<script>
+
+
+
+</script>
+</html>
