@@ -107,21 +107,18 @@
   1. 서울시 내 전체 장애인 중 지체장애인이 44%로 가장 많음
   ![image](https://github.com/Hyeeein/HandiNavi/assets/81239567/1d68ecaa-6f01-4f7c-9b29-530307015159)
 
-
   2. 장애인 편의시설 수가 턱없이 부족한 현실
       - 편의시설 1개당 소화해야 하는 자앵인의 평균 인구 수는 241명
       - 강북구는 편의시설 1개당 약 800명의 장애인이 사용해야 함
-
 
   3. 편의시설의 절대적인 수 증진 필요
   ![image](https://github.com/Hyeeein/HandiNavi/assets/81239567/f54c7d6b-655c-460d-b415-30ca1c781928)
   
       - 장애인 인원 수 별 설치가 필요한 편의시설 기준이 존재하지 않음
       - 국가적인 기준을 만들고, 이를 관리할 필요성 증대
-
+ 
 
 * 개선사항에 대한 기대효과
-
 ![image](https://github.com/Hyeeein/HandiNavi/assets/81239567/1b0e4e52-c636-48de-80f8-dc632c506180)
 
 
