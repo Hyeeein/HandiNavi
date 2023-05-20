@@ -156,5 +156,5 @@
 
 ## 5. 최종 포트폴리오
 
-* [발표 자료](https://github.com/Hyeeein/HandiNavi/blob/master/Documents/%5B%EB%B0%9C%ED%91%9C%EC%9E%90%EB%A3%8C%5DHandiNavi.pdf)
-* [포트폴리오](https://github.com/Hyeeein/HandiNavi/blob/master/Documents/%5B%ED%8F%AC%ED%8A%B8%ED%8F%B4%EB%A6%AC%EC%98%A4%5DHandiNavi.pdf)
+* [발표 자료](https://github.com/Hyeeein/HandiNavi/blob/master/Documents/%5B%EB%B0%9C%ED%91%9C%EC%9E%90%EB%A3%8C%5D%20HandiNavi.pdf)
+* [포트폴리오](https://github.com/Hyeeein/HandiNavi/blob/master/Documents/%5B%ED%8F%AC%ED%8A%B8%ED%8F%B4%EB%A6%AC%EC%98%A4%5D%20HandiNavi.pdf)
